@@ -12,24 +12,30 @@ clearPoint = (ctx, x, y, size) ->
     ctx.clearRect(0, 0, @width, @height)
     ctx.restore()
 
-class FireWorks
+class Hanabi
   constructor: ({
     @quantity
     @size
-    @circle
+    @reduceRate
     @gravity
     @speed
     @color
     @width
     @height
+    @x
+    @y
+    @parent
   } = {}) ->
     @quantity ?= 256 # particle　quantity
     @size     ?= 4.8 # particle size
-    @circle   ?= 0.965 # size
+    @reduceRate ?= 0.965 # size
     @gravity  ?= 1.2 # gravity
     @speed    ?= 7.8 # particle spped
     @color    ?= '#ffcc00' # particle color(#ffffff or rgba(255, 255, 255, 1) or black or random)
 
+    @parent ?= 'body'
+    @x ?= 0
+    @y ?= 0
     @width  ?= 640
     @height ?= 480
 
@@ -37,6 +43,10 @@ class FireWorks
     @ctx = @canvas.getContext('2d')
     @canvas.width = 640
     @canvas.height = 480
+
+    @canvas.style.position = 'absolute'
+    @canvas.style.left = @x
+    @canvas.style.top = @y
 
     @particles = []
     @frame = 0
@@ -48,37 +58,40 @@ class FireWorks
         centerY   : @height/2
         velocityX : Math.cos(angle) * speed
         velocityY : Math.sin(angle) * speed
+        size: @size
+    @appendTo @parent
 
   dispose: ->
     delete @quantity
     delete @size
-    delete @circle
+    delete @reduceRate
     delete @gravity
     delete @speed
     delete @color
     delete @width
     delete @height
     delete @ctx
-    @parent.removeChild(@canvas)
+    @parentEl.removeChild(@canvas)
     delete @canvas
     @particles.length = 0
     delete @particles
     Object.freeze(@)
 
   appendTo: (query) ->
-    @parent = document.querySelector(query)
-    @parent.appendChild @canvas
+    @parentEl = document.querySelector(query)
+    @parentEl.appendChild @canvas
 
   updateParticles: ->
     @particles.forEach (p, index) =>
       # clearPoint(ctx, s.centerX, s.centerY, hanabi.size)
       p.centerX += p.velocityX
       p.centerY += p.velocityY
-      p.velocityX *= @circle
-      p.velocityY *= @circle
+      p.velocityX *= @reduceRate
+      p.velocityY *= @reduceRate
       p.centerY += @gravity
+      p.size *= @reduceRate
 
-      if @size > 0.1 and 0 < p.centerX < @width and 0 < p.centerY < @height
+      if p.size > 0.1 and 0 < p.centerX < @width and 0 < p.centerY < @height
         ''
       else
         @particles.splice @particles.indexOf(p), 1
@@ -91,24 +104,60 @@ class FireWorks
 
     @particles.forEach (p, index) =>
       @ctx.beginPath()
-      @ctx.arc p.centerX, p.centerY, @size, 0, PI * 2, true
+      @ctx.arc p.centerX, p.centerY, p.size, 0, PI * 2, true
       @ctx.fill()
 
-  render: =>
+  fire: (cb) ->
+    if cb then @cb ?= cb
+    @render()
+
+  render: (cb) =>
     unless @particles.length
       @dispose()
-      @onFinish?()
+      @cb?()
+      return
     @ctx.clearRect 0, 0, @width, @height
     @frame++
     @updateParticles()
     @drawParticles()
 
-    @size *= @circle
     @ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'
     requestAnimationFrame @render
 
-window.addEventListener 'load', ->
-  fw = new FireWorks
-  fw.appendTo 'body'
-  fw.render()
+if module?.exports
+  module.exports = Hanabi
+else
+  window.Hanabi = Hanabi
 
+window.addEventListener 'load', ->
+  r = Math.random
+  offsetX = 100
+  offsetY = 100
+  colors = [
+    '#ffcc00'
+    '#ff0000'
+    '#00ff00'
+    '#00ccff'
+    '#00ffcc'
+  ]
+
+  fire = (cb) ->
+    size = 450
+    x = $(window).width() * r()
+    y = $(window).height() * r() + $(window).scrollTop()
+
+    color = colors[~~(colors.length*r())]
+
+    fw = new Hanabi
+      width: size
+      height: size
+      x: x - size
+      y: y - size
+      color: color
+    fw.fire(cb)
+
+  do update = ->
+    fire(update)
+
+  $(document.body).on 'click', (ev) ->
+    fire()
