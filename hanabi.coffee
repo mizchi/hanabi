@@ -129,35 +129,35 @@ if module?.exports
 else
   window.Hanabi = Hanabi
 
-window.addEventListener 'load', ->
-  r = Math.random
-  offsetX = 100
-  offsetY = 100
-  colors = [
-    '#ffcc00'
-    '#ff0000'
-    '#00ff00'
-    '#00ccff'
-    '#00ffcc'
-  ]
+# window.addEventListener 'load', ->
+#   r = Math.random
+#   offsetX = 100
+#   offsetY = 100
+#   colors = [
+#     '#ffcc00'
+#     '#ff0000'
+#     '#00ff00'
+#     '#00ccff'
+#     '#00ffcc'
+#   ]
 
-  fire = (cb) ->
-    size = 450
-    x = $(window).width() * r()
-    y = $(window).height() * r() + $(window).scrollTop()
+#   fire = (cb) ->
+#     size = 450
+#     x = $(window).width() * r()
+#     y = $(window).height() * r() + $(window).scrollTop()
 
-    color = colors[~~(colors.length*r())]
+#     color = colors[~~(colors.length*r())]
 
-    fw = new Hanabi
-      width: size
-      height: size
-      x: x - size
-      y: y - size
-      color: color
-    fw.fire(cb)
+#     fw = new Hanabi
+#       width: size
+#       height: size
+#       x: x - size
+#       y: y - size
+#       color: color
+#     fw.fire(cb)
 
-  do update = ->
-    fire(update)
+#   do update = ->
+#     fire(update)
 
-  $(document.body).on 'click', (ev) ->
-    fire()
+#   $(document.body).on 'click', (ev) ->
+#     fire()
