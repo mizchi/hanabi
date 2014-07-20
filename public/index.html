@@ -1,0 +1,57 @@
+<html>
+  <title>Title</title>
+  <style>
+    body {
+        padding: 0;
+        margin: 0;
+        background: black;
+    }
+    .container {
+        width: 2000px;
+        overflow: hidden;
+    }
+    canvas {
+        padding: 0;
+        margin: 0;
+    }
+  </style>
+
+  <script src='http://code.jquery.com/jquery-2.1.1.min.js'></script>
+  <script src="hanabi.js"></script>
+
+
+  <body>
+    <div class='container'></div>
+    <script>
+
+$(function() {
+  var colors, fire, offsetX, offsetY, r, update;
+  r = Math.random;
+  offsetX = 100;
+  offsetY = 100;
+  colors = ['#ffcc00', '#ff0000', '#00ff00', '#00ccff', '#00ffcc'];
+  fire = function(cb) {
+    var color, fw, size, x, y;
+    size = 450;
+    x = $(window).width() * r();
+    y = $(window).height() * r() + $(window).scrollTop();
+    color = colors[~~(colors.length * r())];
+    fw = new Hanabi({
+      width: size,
+      height: size,
+      x: x - size,
+      y: y - size,
+      color: color
+    });
+    return fw.fire(cb);
+  };
+  (update = function() {
+    return fire(update);
+  })();
+  return $(document.body).off().on('click', function(ev) {
+    return fire();
+  });
+});
+    </script>
+  </body>
+</html>
