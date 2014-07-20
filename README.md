@@ -1,5 +1,7 @@
 # Hanabi
 
+demo http://mizchi.github.io/hanabi/
+
 ![](http://i.gyazo.com/cb21a8f556bc6e3b5b43f83d235aeec9.gif)
 
 ```
